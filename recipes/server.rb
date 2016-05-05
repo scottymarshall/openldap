@@ -74,8 +74,9 @@ if %w(debian rhel).include?(node['platform_family'])
     only_if { node['platform_family'] == 'debian' }
   end
 
-  directory "#{node['openldap']['dir']}/slapd.d" do
+  directory "slapd.d directory" do
     recursive true
+    path "#{node['openldap']['dir']}/slapd.d"
     owner node['openldap']['system_acct']
     group node['openldap']['system_group']
     action :create
@@ -94,6 +95,8 @@ if %w(debian rhel).include?(node['platform_family'])
     owner node['openldap']['system_acct']
     group node['openldap']['system_group']
     notifies :stop, 'service[slapd]', :immediately
+    notifies :delete, 'directory[slapd.d directory]', :immediately
+    notifies :create, 'directory[slapd.d directory]', :immediately
     notifies :run, 'execute[slapd-config-convert]'
   end
 else
