@@ -63,6 +63,9 @@ else
   default['openldap']['database'] = 'hdb'
 end
 
+# Cookbook template locations
+default['openldap']['slapd_conf']['cookbook'] = 'openldap'
+
 # packages
 case node['platform_family']
 when 'debian'

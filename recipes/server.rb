@@ -90,6 +90,7 @@ if %w(debian rhel).include?(node['platform_family'])
   end
 
   template "#{node['openldap']['dir']}/slapd.conf" do
+    cookbook node['openldap']['slapd_conf']['cookbook']
     source 'slapd.conf.erb'
     mode '0640'
     owner node['openldap']['system_acct']
@@ -101,6 +102,7 @@ if %w(debian rhel).include?(node['platform_family'])
   end
 else
   template "#{node['openldap']['dir']}/slapd.conf" do
+    cookbook node['openldap']['slapd_conf']['cookbook']
     source 'slapd.conf.erb'
     mode '0640'
     owner node['openldap']['system_acct']
