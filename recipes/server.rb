@@ -117,7 +117,7 @@ if %w(debian rhel).include?(node['platform_family'])
     notifies :stop, 'service[slapd]', :immediately
     notifies :delete, 'directory[slapd.d directory]', :immediately
     notifies :create, 'directory[slapd.d directory]', :immediately
-    notifies :run, 'execute[slapd-config-convert]', :immediately
+    notifies :run, 'execute[slapd-config-convert]'
   end
 else
   template "#{node['openldap']['dir']}/slapd.conf" do
