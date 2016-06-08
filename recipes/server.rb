@@ -66,12 +66,31 @@ if node['openldap']['tls_enabled'] && node['openldap']['manage_ssl']
 end
 
 if %w(debian rhel).include?(node['platform_family'])
-  template '/etc/default/slapd' do
+  
+  template node['openldap']['default_config_file'] do
     source 'default_slapd.erb'
     owner 'root'
     group node['root_group']
     mode '0644'
-    only_if { node['platform_family'] == 'debian' }
+    variables(
+      ldap_on: node['openldap']['ldap_on'] ? 'yes' : 'no',
+      ldaps_on: node['openldap']['ldaps_on'] ? 'yes' : 'no',
+      ldapi_on: node['openldap']['ldapi_on'] ? 'yes' : 'no'
+    )
+    notifies :restart, 'service[slapd]', :delayed
+  end
+  
+  template '/etc/init.d/slapd' do 
+    source 'slapd_init.erb'
+    mode '0755'
+    variables(
+      ldap_on: node['openldap']['ldap_on'] ? 'yes' : 'no',
+      ldaps_on: node['openldap']['ldaps_on'] ? 'yes' : 'no',
+      ldapi_on: node['openldap']['ldapi_on'] ? 'yes' : 'no'
+    )
+    only_if { node['platform_family'] == 'rhel' }
+    action :create
+    notifies :restart, 'service[slapd]', :delayed
   end
 
   directory "slapd.d directory" do
@@ -98,7 +117,7 @@ if %w(debian rhel).include?(node['platform_family'])
     notifies :stop, 'service[slapd]', :immediately
     notifies :delete, 'directory[slapd.d directory]', :immediately
     notifies :create, 'directory[slapd.d directory]', :immediately
-    notifies :run, 'execute[slapd-config-convert]'
+    notifies :run, 'execute[slapd-config-convert]', :immediately
   end
 else
   template "#{node['openldap']['dir']}/slapd.conf" do
