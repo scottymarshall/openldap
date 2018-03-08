@@ -106,7 +106,7 @@ default['openldap']['basedn'] = 'dc=localdomain'
 default['openldap']['cn'] = 'admin'
 default['openldap']['server'] = 'ldap.localdomain'
 default['openldap']['port'] = 389
-default['openldap']['server_uri'] = "ldap://#{openldap['server']}/"
+default['openldap']['server_uri'] = "ldap://#{node['openldap']['server']}/"
 default['openldap']['tls_enabled'] = true
 default['openldap']['ldap_on'] = true
 default['openldap']['ldaps_on'] = true
@@ -140,10 +140,10 @@ default['openldap']['pam_hash']['session']['required'] = ['pam_unix.so', 'pam_mk
 
 default['openldap']['manage_ssl'] = false
 default['openldap']['tls_checkpeer'] = false
-default['openldap']['ssl_dir'] = "#{openldap['dir']}/ssl"
+default['openldap']['ssl_dir'] = "#{node['openldap']['dir']}/ssl"
 default['openldap']['cafile']  = nil
-default['openldap']['ssl_cert'] = "#{openldap['ssl_dir']}/#{openldap['server']}_cert.pem"
-default['openldap']['ssl_key'] = "#{openldap['ssl_dir']}/#{openldap['server']}.pem"
+default['openldap']['ssl_cert'] = "#{node['openldap']['ssl_dir']}/#{node['openldap']['server']}_cert.pem"
+default['openldap']['ssl_key'] = "#{node['openldap']['ssl_dir']}/#{node['openldap']['server']}.pem"
 default['openldap']['ssl_cert_source_cookbook'] = 'openldap'
 default['openldap']['ssl_cert_source_path'] = "ssl/#{node['openldap']['server']}_cert.pem"
 default['openldap']['ssl_key_source_cookbook'] = 'openldap'
@@ -170,7 +170,7 @@ default['openldap']['server_config_hash']['sizelimit'] = 500
 
 default['openldap']['client_config_hash']['ldap_version'] = 3
 default['openldap']['client_config_hash']['bind_policy'] = 'soft'
-default['openldap']['client_config_hash']['pam_password'] = openldap['pam_password']
+default['openldap']['client_config_hash']['pam_password'] = node['openldap']['pam_password']
 
 # package settings
 default['openldap']['package_install_action'] = :install
