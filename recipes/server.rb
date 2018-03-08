@@ -65,17 +65,37 @@ if node['openldap']['tls_enabled'] && node['openldap']['manage_ssl']
   end
 end
 
-if %w(debian rhel).contains?(node['platform_family'])
-  template '/etc/default/slapd' do
+if %w(debian rhel).include?(node['platform_family'])
+  
+  template node['openldap']['default_config_file'] do
     source 'default_slapd.erb'
     owner 'root'
     group node['root_group']
     mode '0644'
-    only_if { node['platform_family'] == 'debian' }
+    variables(
+      ldap_on: node['openldap']['ldap_on'] ? 'yes' : 'no',
+      ldaps_on: node['openldap']['ldaps_on'] ? 'yes' : 'no',
+      ldapi_on: node['openldap']['ldapi_on'] ? 'yes' : 'no'
+    )
+    notifies :restart, 'service[slapd]', :delayed
+  end
+  
+  template '/etc/init.d/slapd' do 
+    source 'slapd_init.erb'
+    mode '0755'
+    variables(
+      ldap_on: node['openldap']['ldap_on'] ? 'yes' : 'no',
+      ldaps_on: node['openldap']['ldaps_on'] ? 'yes' : 'no',
+      ldapi_on: node['openldap']['ldapi_on'] ? 'yes' : 'no'
+    )
+    only_if { node['platform_family'] == 'rhel' }
+    action :create
+    notifies :restart, 'service[slapd]', :delayed
   end
 
-  directory "#{node['openldap']['dir']}/slapd.d" do
+  directory "slapd.d directory" do
     recursive true
+    path "#{node['openldap']['dir']}/slapd.d"
     owner node['openldap']['system_acct']
     group node['openldap']['system_group']
     action :create
@@ -89,15 +109,19 @@ if %w(debian rhel).contains?(node['platform_family'])
   end
 
   template "#{node['openldap']['dir']}/slapd.conf" do
+    cookbook node['openldap']['slapd_conf']['cookbook']
     source 'slapd.conf.erb'
     mode '0640'
     owner node['openldap']['system_acct']
     group node['openldap']['system_group']
     notifies :stop, 'service[slapd]', :immediately
+    notifies :delete, 'directory[slapd.d directory]', :immediately
+    notifies :create, 'directory[slapd.d directory]', :immediately
     notifies :run, 'execute[slapd-config-convert]'
   end
 else
   template "#{node['openldap']['dir']}/slapd.conf" do
+    cookbook node['openldap']['slapd_conf']['cookbook']
     source 'slapd.conf.erb'
     mode '0640'
     owner node['openldap']['system_acct']

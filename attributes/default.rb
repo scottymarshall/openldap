@@ -30,6 +30,7 @@ when 'rhel'
   default['openldap']['module_dir'] = '/usr/lib64/openldap'
   default['openldap']['system_acct'] = 'ldap'
   default['openldap']['system_group'] = 'ldap'
+  default['openldap']['default_config_file'] = '/etc/sysconfig/ldap'
 when 'debian'
   default['openldap']['dir'] = '/etc/ldap'
   default['openldap']['run_dir'] = '/var/run/slapd'
@@ -37,6 +38,7 @@ when 'debian'
   default['openldap']['module_dir'] = '/usr/lib/ldap'
   default['openldap']['system_acct'] = 'openldap'
   default['openldap']['system_group'] = 'openldap'
+  default['openldap']['default_config_file'] = '/etc/default/slapd'
 when 'freebsd'
   default['openldap']['dir'] = '/usr/local/etc/openldap'
   default['openldap']['run_dir'] = '/var/run/openldap'
@@ -62,6 +64,9 @@ else
   default['openldap']['modules'] = %w(back_hdb)
   default['openldap']['database'] = 'hdb'
 end
+
+# Cookbook template locations
+default['openldap']['slapd_conf']['cookbook'] = 'openldap'
 
 # packages
 case node['platform_family']
@@ -103,6 +108,9 @@ default['openldap']['server'] = 'ldap.localdomain'
 default['openldap']['port'] = 389
 default['openldap']['server_uri'] = "ldap://#{openldap['server']}/"
 default['openldap']['tls_enabled'] = true
+default['openldap']['ldap_on'] = true
+default['openldap']['ldaps_on'] = true
+default['openldap']['ldapi_on'] = false
 
 # The NSS filters here determine what users and groups the machine knows about
 default['openldap']['nss_base']['passwd'] = ["ou=people,#{node['openldap']['basedn']}"]
